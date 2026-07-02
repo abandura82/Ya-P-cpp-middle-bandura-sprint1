@@ -125,7 +125,6 @@ bool ProgramOptions::isInputFileValid() {
     } else {
         std::ofstream MyFileToCreate(inputFile_);
         if (!MyFileToCreate) {  // Проверка: удалось ли открыть/создать файл
-            // std::println("Ошибка доступа или неверный путь к файлу: {}!", inputFile_);
             std::println("Системная ошибка: {} (код {})", std::strerror(errno), errno);
             std::println("Абсолютный путь: {}", std::filesystem::absolute(inputFile_).string());
             return false;
@@ -138,7 +137,6 @@ bool ProgramOptions::isInputFileValid() {
 bool ProgramOptions::isOutputFileValid() {
     std::ofstream MyFileToCreate(outputFile_, std::ios::trunc);
     if (!MyFileToCreate) {  // Проверка: удалось ли открыть/создать файл
-        // std::println("Ошибка доступа или неверный путь к файлу: {}!", inputFile_);
         std::println("Системная ошибка: {} (код {})", std::strerror(errno), errno);
         std::println("Абсолютный путь: {}", std::filesystem::absolute(outputFile_).string());
         return false;
