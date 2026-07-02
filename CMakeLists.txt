@@ -43,12 +43,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_imp)
 file(GLOB TEST_SRC_FILES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
 
 add_executable(unit_tests "${TEST_SRC_FILES}")
+# +al 20260510
+#add_executable(unit_tests tests/main.cpp tests/cmd_options_test.cpp src/cmd_options.cpp)
+
 target_include_directories(unit_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# +al 20260510
+#target_include_directories(unit_tests PRIVATE src)
+
 target_link_libraries(unit_tests
     PRIVATE
         ${PROJECT_NAME}_imp
         GTest::GTest
         GTest::Main)
+
 
 # Включаем тестирование
 enable_testing()
