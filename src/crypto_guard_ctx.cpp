@@ -70,12 +70,12 @@ public:
     std::unique_ptr<EVP_CIPHER_CTX, CryptoContextDeleter> ssl_ctx_;
 
     Impl() : ssl_ctx_(EVP_CIPHER_CTX_new(), CryptoContextDeleter()) {
+        OpenSSL_add_all_algorithms();  // +al 20260706
         if (!ssl_ctx_) {
             print_openssl_errors("Не удалось создать EVP_CIPHER_CTX");  // +al 20260619
         }
     }
     void EncryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password) {
-        // if (!inStream.good() || !outStream.good()) {
         if (!inStream.good()) {
             std::println("Ошибка входного потока");
             return;
@@ -91,6 +91,7 @@ public:
             params.encrypt = 1;
             // 3. Инициализируем наш контекст OpenSSL (ssl_ctx_) свежими параметрами
             // Передаем ssl_ctx_.get(), так как это std::unique_ptr (не нужно ли тут испольовать out_ptr??)
+            EVP_CIPHER_CTX_reset(ssl_ctx_.get());  // +al 20260717
             if (EVP_CipherInit_ex(ssl_ctx_.get(), params.cipher, nullptr, params.key.data(), params.iv.data(),
                                   params.encrypt) != 1) {
                 print_openssl_errors("Не удалось инициализировать контекст шифрования OpenSSL");  // +al 20260619
@@ -153,6 +154,7 @@ public:
             params.encrypt = 0;
             // 3. Инициализируем наш контекст OpenSSL (ssl_ctx_) свежими параметрами
             // Передаем ssl_ctx_.get(), так как это std::unique_ptr (не нужно ли тут испольовать out_ptr??)
+            EVP_CIPHER_CTX_reset(ssl_ctx_.get());  // +al 20260717
             if (EVP_CipherInit_ex(ssl_ctx_.get(), params.cipher, nullptr, params.key.data(), params.iv.data(),
                                   params.encrypt) != 1) {
                 // throw std::runtime_error("Не удалось инициализировать контекст дешифрования OpenSSL"); // -al
@@ -190,8 +192,9 @@ public:
 
             if (finalLen > 0) {
                 outStream.write(reinterpret_cast<const char *>(outBuf.data()), finalLen);
+                std::println("Дешифрование файла успешно завершено.");  //+al 20260717
             }
-            std::println("Дешифрование файла успешно завершено.");
+            // std::println("Дешифрование файла успешно завершено."); //-al 20260717
         } catch (const std::exception &e) {
             std::println(std::cerr, "Критическая ошибка при дешифровании: {}", e.what());
             // Дополнительно сбрасываем контекст при ошибке, чтобы не оставлять мусор
@@ -262,6 +265,8 @@ public:
 
         return params;
     }
+    // +al 20260716
+    ~Impl() { EVP_cleanup(); }
 };
 
 // CryptoGuardCtx::CryptoGuardCtx() : impl_(std::make_unique<Impl>()) {
@@ -269,7 +274,7 @@ CryptoGuardCtx::CryptoGuardCtx() : impl_(std::make_unique<Impl>()) {
     // как в задании, цитирую: в конструктор и деструктор класса поместите функции инициализации EVP из main.
     std::string input = "01234567890123456789";
     std::string output;
-    OpenSSL_add_all_algorithms();
+    OpenSSL_add_all_algorithms();  // +al 20260706
 
     auto params = impl_->CreateCipherParamsFromPassword("12341234");
     params.encrypt = 1;
