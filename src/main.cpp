@@ -14,7 +14,12 @@
 int main(int argc, char *argv[]) {
     try {
         CryptoGuard::ProgramOptions options;
-        options.Parse(argc, argv);
+        // options.Parse(argc, argv); // -al 20270717
+        //  +al 20260717
+        if (!options.Parse(argc, argv)) {
+            std::println("Неверно заданы исходные данные");
+            return 2;
+        };
 
         CryptoGuard::CryptoGuardCtx cryptoCtx;
         std::ifstream inFileStream(options.GetInputFile());
@@ -48,7 +53,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
             default:
-                std::print("Неизвестная команда!");
+                std::println("Неизвестная команда!");
                 break;
             }
         }

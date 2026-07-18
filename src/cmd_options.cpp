@@ -55,6 +55,7 @@ bool ProgramOptions::Parse(int argc, char *argv[]) {  // +al 20260511 0006
         }
         std::println("inputFile: {}", inputFile_);  // потом убрать
         if (!isInputFileValid()) {
+            std::println("Ошибка: исходный файл: {} не существует или не может быть открыт", inputFile_);
             return false;  // если не смогли открыть существующий или создать файл новый файл
         } else {
             inputFileOk_ = true;
@@ -64,11 +65,25 @@ bool ProgramOptions::Parse(int argc, char *argv[]) {  // +al 20260511 0006
         if (vm.count("output")) {
             outputFile_ = vm["output"].as<std::string>();
             if (!isOutputFileValid()) {
+                std::println("Ошибка: результирующий файл: {} не может быть записан", outputFile_);
                 return false;
             }
             outputFileOk_ = true;
         }
         std::println("outputFile: {}", outputFile_);
+
+        // +al 20260717
+        if (vm.count("output")) {
+            namespace fs = std::filesystem;
+            if (fs::equivalent(inputFile_, outputFile_)) {
+                std::println("Ошибка: исходный файл: {} совпадает с результирующим: {}", inputFile_, outputFile_);
+                return false;
+            } else if (inputFile_ == outputFile_) {
+                std::println("Пути совпадают");
+                return false;
+            }
+        }
+
         //+al 20260510
         if (vm.count("password")) {
             password_ = vm["password"].as<std::string>();

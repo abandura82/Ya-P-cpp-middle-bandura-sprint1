@@ -24,7 +24,7 @@ public:
     // API
     void EncryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password);  //{} // -al
     void DecryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password);  //{} // -al
-    std::string CalculateChecksum(std::iostream &inStream);  // { return "NOT_IMPLEMENTED"; } // -al
+    [[nodiscard]] std::string CalculateChecksum(std::iostream &inStream);
     bool IsValid() const;
 
 private:
